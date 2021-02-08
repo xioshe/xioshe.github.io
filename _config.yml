@@ -112,24 +112,3 @@ deploy:
   # type: git
   # repo: https://github.com/esahcorp/esahcorp.github.io
   # branch: gh-pages
-
-# 覆盖主题的默认配置
-theme_config:
-  projects_url: http://github.com/esahcorp
-  nav:
-    home: /
-    about: /about/
-    articles: /archives/
-    category: /categories/
-    search: /search/
-  social_links:
-    github: http://github.com/esahcorp
-    mail: mailto:lostkite@outlook.com
-  tags_overview: true
-  highlight: rainbow
-  disqus:
-    enabled: true
-    shortname: loskiet
-  gravatar:
-    email: lostkite@outlook.com
-    hash: 1b0e23f6bd58528b318d61e2e77d3577
