@@ -1,4 +1,5 @@
 # 覆盖主题的默认配置
+colorscheme: white
 projects_url: http://github.com/esahcorp
 nav:
   home: /
@@ -17,3 +18,20 @@ disqus:
 gravatar:
   email: lostkite@outlook.com
   hash: 1b0e23f6bd58528b318d61e2e77d3577
+logo:
+  enabled: true
+  width: 50
+  height: 50
+  url: /images/logo-sun.png
+  gravatar: false
+  grayout: true
+favicon:
+  desktop:
+    url: /images/favicon-sun.ico
+    gravatar: false
+  android:
+    url: /images/favicon-sun-192x192.png
+    gravatar: false
+  apple:
+    url: /images/apple-touch-icon-sun.png
+    gravatar: false
