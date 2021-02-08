@@ -108,9 +108,10 @@ theme: cactus
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
-  type: git
-  repo: https://github.com/esahcorp/esahcorp.github.io
-  branch: master
+  type: ''
+  # type: git
+  # repo: https://github.com/esahcorp/esahcorp.github.io
+  # branch: gh-pages
 
 # 覆盖主题的默认配置
 theme_config:
