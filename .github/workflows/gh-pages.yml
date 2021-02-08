@@ -27,7 +27,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - run: npm ci --no-optional
+      - run: npm install --no-optional
       - run: npm run build
 
       - name: Deploy
