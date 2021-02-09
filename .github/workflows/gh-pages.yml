@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-            submodules: true  # Fetch Hugo themes (true OR recursive)
+            submodules: true  # Fetch themes (true OR recursive)
             fetch-depth: 0
 
       - name: Setup Node
@@ -28,9 +28,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      # - run: npm install || true
-      # - run: npm install hexo-cli -g
-      - run: npm install --no-optional
+      # - run: npm ci --no-optional
+      - run: npm ci
       - run: npm run build
 
       - name: Deploy
