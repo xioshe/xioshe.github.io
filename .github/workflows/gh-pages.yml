@@ -29,7 +29,8 @@ jobs:
             ${{ runner.os }}-node-
 
       # - run: npm install || true
-      - run: npm install --no-optional || true
+      # - run: npm install hexo-cli -g
+      - run: npm install --no-optional
       - run: npm run build
 
       - name: Deploy
