@@ -3,10 +3,10 @@ colorscheme: white
 projects_url: http://github.com/esahcorp
 nav:
   home: /
-  about: /about/
+  search: /search/
   articles: /archives/
   category: /categories/
-  search: /search/
+  about: /about/  
 social_links:
   github: http://github.com/esahcorp
   mail: mailto:lostkite@outlook.com
