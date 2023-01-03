@@ -8,15 +8,15 @@ nav:
   category: /categories/
   about: /about/  
 social_links:
-  github: http://github.com/esahcorp
-  mail: mailto:lostkite@outlook.com
+  github: http://github.com/xioshe
+  mail: mailto:xioshe@outlook.com
 tags_overview: true
 highlight: rainbow
 disqus:
   enabled: true
-  shortname: loskiet
+  shortname: xioshe
 gravatar:
-  email: lostkite@outlook.com
+  email: xioshe@outlook.com
   hash: 1b0e23f6bd58528b318d61e2e77d3577
 logo:
   enabled: true
