@@ -897,7 +897,8 @@ $$
 private synchronized byte[] generateSalt() {
     if (null == rng) {
         rng = new SecureRandom();
-        log.info("Initialized a random number stream using {} provided by {}", rng.getAlgorithm(), rng.getProvider());
+        log.info("Initialized a random number stream using {} provided by {}", 
+                rng.getAlgorithm(), rng.getProvider());
         rngUses = 0;
     }
     if (rngUses++ > RESEED_INTERVAL) {
