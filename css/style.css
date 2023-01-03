@@ -444,6 +444,29 @@ body td {
 *:after {
   box-sizing: border-box;
 }
+/* Scroll bar */
+/* For Firefox */
+* {
+  scrollbar-color: #aaa transparent;
+}
+/* For Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 6px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #888;
+}
+*::-webkit-scrollbar-thumb:active {
+  background-color: #777;
+}
 html {
   margin: 0;
   padding: 0;
@@ -744,7 +767,7 @@ body {
   color: #2bbc8a;
 }
 #header-post #menu {
-  visibility: hidden;
+  display: none;
   margin-right: 2rem;
 }
 #header-post #nav {
@@ -1138,7 +1161,7 @@ article .content blockquote:before {
 article .content blockquote footer {
   margin: line-height 0;
   color: #666;
-  font-size: 11px;
+  font-size: 12px;
 }
 article .content blockquote footer a {
   background-image: linear-gradient(transparent, transparent 5px, #666 5px, #666);
@@ -1203,6 +1226,9 @@ article .content .caption {
     content: "|";
   }
 }
+#archive .post-year {
+  list-style-type: none;
+}
 #archive .post-list {
   padding: 0;
 }
@@ -1239,7 +1265,7 @@ article .content .caption {
   color: #666;
   vertical-align: top;
   text-align: center;
-  font-size: 11px;
+  font-size: 12px;
 }
 #footer ul {
   margin: 0;
@@ -1487,64 +1513,70 @@ article .content .caption {
   content: ")";
 }
 .highlight {
-  background: #474949;
-  color: #d1d9e1;
+  color: #000;
+  background: #fff;
 }
 .highlight .code .comment,
 .highlight .code .quote {
-  color: #969896;
-  font-style: italic;
+  color: #006a00;
 }
 .highlight .code .keyword,
 .highlight .code .selector-tag,
-.highlight .code .literal,
-.highlight .code .type,
-.highlight .code .addition {
-  color: #c9c;
+.highlight .code .literal {
+  color: #aa0d91;
 }
-.highlight .code .number,
-.highlight .code .selector-attr,
-.highlight .code .selector-pseudo {
-  color: #f99157;
-}
-.highlight .code .string,
-.highlight .code .doctag,
-.highlight .code .regexp {
-  color: #8abeb7;
-}
-.highlight .code .title,
-.highlight .code .name,
-.highlight .code .section,
-.highlight .code .built_in {
-  color: #b5bd68;
+.highlight .code .name {
+  color: #008;
 }
 .highlight .code .variable,
-.highlight .code .template-variable,
-.highlight .code .selector-id,
-.highlight .code .class .title {
-  color: #fc6;
+.highlight .code .template-variable {
+  color: #660;
 }
-.highlight .code .section,
-.highlight .code .name,
-.highlight .code .strong {
-  font-weight: bold;
+.highlight .code .string {
+  color: #c41a16;
 }
+.highlight .code .regexp,
+.highlight .code .link {
+  color: #080;
+}
+.highlight .code .title,
+.highlight .code .tag,
 .highlight .code .symbol,
 .highlight .code .bullet,
-.highlight .code .subst,
-.highlight .code .meta,
-.highlight .code .link {
-  color: #f99157;
+.highlight .code .number,
+.highlight .code .meta {
+  color: #1c00cf;
 }
-.highlight .code .deletion {
-  color: #dc322f;
+.highlight .code .section,
+.highlight .code .class .title,
+.highlight .code .type,
+.highlight .code .attr,
+.highlight .code .built_in,
+.highlight .code .builtin-name,
+.highlight .code .params {
+  color: #5c2699;
+}
+.highlight .code .attribute,
+.highlight .code .subst {
+  color: #000;
 }
 .highlight .code .formula {
-  background: #eee8d5;
+  background-color: #eee;
+  font-style: italic;
 }
-.highlight .code .attr,
-.highlight .code .attribute {
-  color: #81a2be;
+.highlight .code .addition {
+  background-color: #baeeba;
+}
+.highlight .code .deletion {
+  background-color: #ffc8bd;
+}
+.highlight .code .selector-id,
+.highlight .code .selector-class {
+  color: #9b703f;
+}
+.highlight .code .doctag,
+.highlight .code .strong {
+  font-weight: bold;
 }
 .highlight .code .emphasis {
   font-style: italic;
@@ -1584,7 +1616,7 @@ code {
   margin: -5px 0 5px;
   color: #757575;
   font-size: 0.9em;
-  zoom: 1;
+  transform: scale(1);
 }
 .highlight figcaption a {
   float: right;
@@ -1634,4 +1666,7 @@ code {
 }
 .highlight .line {
   height: 22px;
+}
+.katex * {
+  font-weight: bold;
 }
