@@ -11,7 +11,7 @@ social_links:
   github: http://github.com/xioshe
   mail: mailto:xioshe@outlook.com
 tags_overview: true
-highlight: rainbow
+highlight: xcode
 disqus:
   enabled: true
   shortname: xioshe
