@@ -885,7 +885,32 @@ public class RedPacketAllocator {
 
 ### SecureRandom 最佳实践
 
-SecureRandom 主要用在密码领域，最重要的一点就是要避免阻塞，可以根据具体场景采取不同的措施避免阻塞。
+SecureRandom 主要用在密码领域，最重要的一点就是要避免阻塞，可以根据具体场景采取不同的措施避免阻塞。其次则是可以定期对生成器进行一次种子注入，以提高安全性。
+
+一个简单例子，敏感数据“加盐”场景。对于用户密码等敏感数据，需要进行“加盐”处理后再存储，这样能避免数据泄漏的风险。所谓盐者，就是一个随机数据，将密码与“盐”混合，然后进行一次哈希处理。存储数据时，仅存储“盐”值和哈希处理的结果，用户登录时重新进行一次加盐哈希，如果结果与数据库中记录匹配，则证明密码匹配。
+$$
+Hash(Hash(password) + salt)
+$$
+以下代码展示了生成“盐”值的方式，调用方法达到一定次数后会进行一次 Reseed，补充生成器的随机度。
+
+```java
+private synchronized byte[] generateSalt() {
+    if (null == rng) {
+        rng = new SecureRandom();
+        log.info("Initialized a random number stream using {} provided by {}", rng.getAlgorithm(), rng.getProvider());
+        rngUses = 0;
+    }
+    if (rngUses++ > RESEED_INTERVAL) {
+        // 使用一定次数后，重新设置种子，增加安全性
+        log.debug("Re-seeding the RNG");
+        rng.setSeed(rng.generateSeed(SEED_BYTES));
+        rngUses = 0;
+    }
+    salt = new byte[SALT_BYTES];
+    rng.nextBytes(salt);
+    return salt;
+}
+```
 
 ## End
 
