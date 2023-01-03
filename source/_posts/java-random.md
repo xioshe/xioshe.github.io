@@ -50,6 +50,7 @@ next 方法包含了 Random 类生成随机数的核心逻辑。不过，在解�
 ### LCG 算法
 
 LCG（Linear congruential generator，线性同余生成器）算法是一种利用数学公式来计算随机数的算法，原理可以概括为一个简单的公式。
+
 $$
 X_{n+1} = (aX_{n} + c)\ mod\ m
 $$
@@ -139,9 +140,9 @@ protected int next(int bits) {
 LGC 算法中，在常量 $m$、$a$、$c$ 确定的情况下，输入相同的起始值 $X_{0}$ 就能得到相同的序列，这样随机数生成器就有了“回放”的功能。Random 类也支持“回放”功能，可以在构造函数传入一个 long 类型的“种子”。两个不同 Random 对象，种子相同，生成的随机数序列也相同。同一个种子，同一个序列。
 
 ```java
-var seed = -229985452L;
-var rnd1 = new Random(seed);
-var rnd2 = new Random(seed);
+long seed = -229985452L;
+Random rnd1 = new Random(seed);
+Random rnd2 = new Random(seed);
 assertThat(rnd1.nextInt()).isEqualTo(rnd2.nextInt());
 assertThat(rnd1.nextBoolean()).isEqualTo(rnd2.nextBoolean());
 assertThat(rnd1.nextLong()).isEqualTo(rnd2.nextLong());
