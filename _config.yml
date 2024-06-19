@@ -3,8 +3,8 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: 停云
-subtitle: '有酒有酒 闲饮东窗'
+title: Chaser of Light
+subtitle: '向着太阳前进～'
 description: '你好，我是 xioshe，欢迎来到我的博客。我是一个后端开发，也会一点前端。在博客里我会分享一些在工作学习中遇到的技术知识。水平有限，难免有错谬，欢迎指正。'
 keywords:
 author: xioshe
@@ -112,15 +112,3 @@ deploy:
   # type: git
   # repo: https://github.com/esahcorp/esahcorp.github.io
   # branch: gh-pages
-
-# Render support LaTex
-markdown_it_plus:
-    highlight: true
-    html: true
-    xhtmlOut: true
-    breaks: true
-    langPrefix:
-    linkify: true
-    typographer:
-    quotes: “”‘’
-    pre_class: highlight

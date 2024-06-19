@@ -224,7 +224,7 @@ private static long seedUniquifier() {
 
 除了 LGC 算法，常用的随机数生成算法还有平方取中法、梅森旋转算法等，都是利用数学生成周期性序列的方法，我们称之为伪随机数。因为这些随机序列看起来随机，实际上并不随机，受限于有限的状态，具备周期性这个显著的缺点。
 
-> 冯·诺依曼曾经断言：「任何用数学方法生成随机数的尝试都不合理。」
+> 冯·诺依曼曾经断言：任何用数学方法生成随机数的尝试都不合理。
 
 与数学上的伪随机数相对，现实世界在自然随机性中产生的随机数，称为真随机数。真随机不仅看起来随机，实际上也随机。真随机序列分布均匀，不可预测，还没有周期，是真正符合传统认知的随机数。产生真随机数的机制没有幂等性，所有条件相同的情况下，输出也可能不相等。这就是真随机的魅力。无论两次投掷的角度和力道如何相同，物理学灵巧的手指也可能把骰子拨到一个截然不同的点数。在安全领域，幂等性是所有伪随机数生成算法无法掩盖的阿喀琉斯之踵。因为图灵机本身就是充满确定性的工具，只要计算机还在采用图灵机作为计算模型，就无法凭空创造出不确定性的真随机。
 
@@ -305,7 +305,7 @@ SecureRandom 类的大致结构图如下：
 
 ```java
 public class SecureRandom extends java.util.Random {
-    
+
     private SecureRandomSpi secureRandomSpi = null;
 
     @Override
@@ -348,17 +348,17 @@ SecureRandom 在构造函数初始化 SecureRandomSpi 属性。
 ```java
 public class SecureRandom extends java.util.Random {
     private SecureRandomSpi secureRandomSpi = null;
-    
+
     public SecureRandom() {
         super(0);
         getDefaultPRNG(false, null);
     }
-    
+
     public SecureRandom(byte seed[]) {
         super(0);
         getDefaultPRNG(true, seed);
     }
-    
+
     /** 初始化 secureRandomSpi */
     private void getDefaultPRNG(boolean setSeed, byte[] seed) {
         // 利用 SPI 机制获取实现类
@@ -474,10 +474,10 @@ public final class NativePRNG extends SecureRandomSpi {
 
     // RandomIO 的单例
     private static final RandomIO INSTANCE = initIO(Variant.MIXED);
-    
+
     // 根据类型创建不同的 RandomIO 对象
     private static RandomIO initIO(final Variant v) {}
-    
+
     @Override
     protected void engineSetSeed(byte[] seed) {
         INSTANCE.implSetSeed(seed);
@@ -558,7 +558,7 @@ implements java.io.Serializable {
         SeedGenerator.generateSeed(b);
         return b;
     }
-    
+
     /** 懒加载 seeder 的技巧 */
     private static class SeederHolder {
         // 访问 seeder 时会触发类初始化
@@ -572,7 +572,7 @@ implements java.io.Serializable {
             seeder.engineSetSeed(b);
         }
     }
-    
+
     @Override
     public synchronized void engineNextBytes(byte[] result) {
         // 如果没有提供种子，第一次调用时 state 就会为 null
@@ -582,7 +582,7 @@ implements java.io.Serializable {
             SeederHolder.seeder.engineNextBytes(seed);
             state = digest.digest(seed);
         }
-        
+
         // 省略后续代码
     }
 }
@@ -595,7 +595,7 @@ SHA1PRNG 类的代码主要是对于 SHA1 哈希算法的运用，我们重点�
 package sun.security.provider;
 abstract class SeedGenerator {
     private static SeedGenerator instance;
-    
+
     static public void generateSeed(byte[] result) {
         instance.getSeedBytes(result);
     }
@@ -681,7 +681,7 @@ public static SecureRandom getInstanceStrong() throws NoSuchAlgorithmException {
             } catch (NoSuchAlgorithmException |
                      NoSuchProviderException e) {
             }
-            
+
             // 出错了换下一组配置继续匹配
             remainder = m.group(5);
         } else {
@@ -697,7 +697,7 @@ public static SecureRandom getInstanceStrong() throws NoSuchAlgorithmException {
 根据代码，该方法从安全配置中获取 `securerandom.strongAlgorithms` 属性，然后从该配置值中提取算法和实现，最后用 `getInstance()` 工厂方法构建实例。而 `securerandom.strongAlgorithms` 配置在哪呢，就在前面出现过的 JDK 配置文件 `java.security` 中。
 
 ```shell
-> cat java.security | grep 'securerandom.strongAlgorithms'                 
+> cat java.security | grep 'securerandom.strongAlgorithms'
 securerandom.strongAlgorithms=NativePRNGBlocking:SUN,DRBG:SUN
 ```
 
@@ -777,7 +777,7 @@ public class ThreadLocalRandom extends Random {
         = U.objectFieldOffset(Thread.class, "threadLocalRandomSeed");
     private static final long PROBE
         = U.objectFieldOffset(Thread.class, "threadLocalRandomProbe");
-    
+
     private static final ThreadLocalRandom instance = new ThreadLocalRandom();
     public static ThreadLocalRandom current() {
         if (U.getInt(Thread.currentThread(), PROBE) == 0)
@@ -785,7 +785,7 @@ public class ThreadLocalRandom extends Random {
             localInit();
         return instance;
     }
-    
+
     static final void localInit() {
         int p = probeGenerator.addAndGet(PROBE_INCREMENT);
         int probe = (p == 0) ? 1 : p; // skip 0
@@ -897,7 +897,7 @@ $$
 private synchronized byte[] generateSalt() {
     if (null == rng) {
         rng = new SecureRandom();
-        log.info("Initialized a random number stream using {} provided by {}", 
+        log.info("Initialized a random number stream using {} provided by {}",
                 rng.getAlgorithm(), rng.getProvider());
         rngUses = 0;
     }
