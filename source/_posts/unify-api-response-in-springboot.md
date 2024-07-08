@@ -12,17 +12,19 @@ categories:
 
 ## 为什么要统一接口的返回结构？
 
-调用 API 接口已经成了日常开发工作的一环，无论从事前端开发还是后端开发，或多或少会与 API 接口打交道。前后端分离、后端微服务化、SaaS，这些耳熟能详的名词，都涉及到了 API 调用。因为普遍使用 API，业界也发展出了一些 API 规范，比如 RESTful、QraphQL，这些规范统一了接口风格，降低了接口的使用成本。目前已经成了业界主流。但这些规范中，都没有明确规定是否要对接口返回值外面包装一层统一的结构，一切决定权在于开发者。
+调用 API 接口已经成了日常开发工作的一环，无论从事前端开发还是后端开发，或多或少会与 API 接口打交道。前后端分离、后端微服务化、SaaS，这些耳熟能详的名词，都涉及到了 API 调用。由于普遍使用 API，业界发展出了一些 API 规范，比如 RESTful、QraphQL。这些规范统一了接口风格，降低了接口的使用成本，目前已经成了主流。但这些接口规范都没有明确规定是否需要返回统一的结构，选择权在于开发者。
 
-统一接口返回结构，有以下优势：
+衡量接口是否需要返回相同的结构，可以从优劣两方面分析。
+
+统一接口返回结构具有以下优势：
 
 - 降低心智负担
 - 降低前端开发难度
 - 提高代码可维护性
 
-统一的结构代表统一的模式，能显著降低心智负担。我们的大脑是一台懒惰的机器，它善于分析信息的差异，从而利用差异来处理信息，但不善于处理混乱无序的信息。RESTful 风格就包涵了一种统一模式的思想——从资源的角度看待数据，复用 HTTP 方法来表示对数据的操作。在这个统一模式下，拿到一组全新的接口，序员们也能快速分辨出各个接口大概的功能，提高工作效率。另一方面，统一的模式也能避免序员在开发接口时过度纠结于方法命名。
+统一的结构代表统一的模式，能显著降低心智负担。我们的大脑是一台懒惰的机器，它善于分析信息的差异，从而利用差异来处理信息，但不善于处理混乱无序的信息。RESTful 风格就包涵了统一模式的思想——从资源的角度看待数据，复用 HTTP 方法来表示对数据的操作。在这个统一模式下，拿到一组全新的接口，序员们也能快速分辨出各个接口大概的功能，从而提高工作效率。另一方面，统一的模式也能避免序员在开发接口时过度纠结于方法命名。与之类似，统一的响应结构也照顾了懒惰的大脑，使从接口响应中提取关键信息变得更加容易。一个从没使用过的 API，序员在拿到响应数据时，也能快速判断请求是否成功，推断出大致的失败原因。这就是统一模式带来的遍历。
 
-所有前端开发者都不希望拿到风格迥异的 API。因为风格统一的接口利于前端代码的封装和复用。现代工程化前端通常会使用 HTTP 客户端工具包来请求接口，比如 axios，并进行一定程度的封装。封装的一个方向是异常处理，根据接口的返回结果判断是否出现异常，进而进入统一的异常处理流程，不必在每次请求时单独处理。试想一下，有些接口用 status 属性表示异常状态，另一些则用 code 属性，甚至还有些接口使用 HTTP 状态码。这时候前端如何兼容所有接口就成了一个极大的挑战，没人会喜欢做这样的工作。
+所有前端开发者都不希望拿到风格迥异的 API。风格统一的接口更利于前端代码的封装和复用。现代工程化前端通常会使用 HTTP 客户端工具包来请求接口，比如 axios，并进行一定程度的封装。封装的一个方向是异常处理，根据接口的返回结果判断是否出现异常，进而采取统一的异常处理流程，不必在每次请求时单独处理。试想一下，有些接口用 status 属性表示异常状态，另一些则用 code 属性，甚至还有些接口使用 HTTP 状态码。这时候前端如何兼容所有接口就成了一个极大的挑战，没人会喜欢做这样的工作。
 
 需要修改接口返回内容时，统一的结构能避免不少麻烦。比如需要调整错误码，基于统一的结构的代码可以集中处理，不必逐一检查每个接口。
 
@@ -30,21 +32,21 @@ categories:
 
 统一的接口返回结构主要有三个方面的弊端：
 
-- **降低了接口的灵活性**，统一也意味着约束，开发者不得不戴着镣铐起舞，不能破坏接口结构。
-- **增加了开发成本**，为了统一返回结构，开发者需要编写更多的代码，不管异常与否接口都能返回一致的结构。这个问题可以通过框架层面的封装来避免。
-- **降低了代码可读性**，额外的处理逻辑也代表更高的代码阅读成本。这个问题同样可以通过封装来避免。
+- **降低了接口的灵活性**：统一也意味着约束，开发者不能随意改变接口的结构，不得不戴着镣铐起舞。
+- **增加了开发成本**：开发者需要编写更多的代码，来保证不管异常与否接口都能返回一致的结构。不过这个问题可以通过框架层面的封装来避免。
+- **降低了代码可读性**：额外的处理逻辑意味着更高的代码阅读成本。这个问题也可以通过封装来避免。
 
-RPC 似乎是一个特例，统一返回结构弊大于利。对于 RPC 接口而言，优势在于灵活的返回值结构和更高的性能。统一的返回结构会损失一定的灵活性，且更复杂的返回结构会影响性能。
+RPC 似乎是一个特例，统一返回结构弊大于利。对于 RPC 接口而言，优势在于灵活的返回值结构和更高的性能。固定的返回结构会失去灵活性，更复杂的响应结构会影响性能。
 
 ## 封装时需要注意的细节
 
-在封装接口返回结构的时候，有几个不得不考虑的细节。这些问题没有统一答案，我仅提出自己的看法。
+在封装接口返回结构的时候，有几个不得不考虑的细节。这些问题没有统一答案，我仅提出自己的观点。
 
 ### 是否应该复用 HTTP 错误码？
 
 RESTful 接口规范提倡复用 HTTP 协议的 Status Code 作为接口状态，比如 4xx 代表客户端异常，5xx 代表服务端异常，优点在于可以统一处理一些通用异常类型。我最早是从[**《凤凰架构》**](https://icyfenix.cn/architect-perspective/general-architecture/api-style/rest.html)中看到这种说法，当时十分认同。但是，在具体实践中，我发现 SpringBoot 或者说 SpringMVC 修改 HTTP 状态码的代码比较繁琐，在接口发生异常时也很难统一处理。
 
-后来我又看到另一种处理思路，区分 HTTP 状态码和业务状态码，凯撒的归凯撒，上帝的归上帝。HTTP 状态码代表的是技术层面的细节，而业务状态码代表了业务细节。如果一个属性既能代表技术又能代表业务，这就是一种耦合现象，不利于技术层面的扩展。一种合适的做法是：**将 HTTP 状态码和业务状态码分开**，由技术框架处理 HTTP Status Code，而开发者控制业务层面的状态码。
+后来我又看到另一种处理思路——明确区分 HTTP 状态码和业务状态码，凯撒的归凯撒，上帝的归上帝。HTTP 状态码代表的是技术层面的细节，而业务状态码代表了业务细节。如果一个属性既能表示技术又能表示业务，就是一种严重的耦合，这不利于代码的扩展。一种合适的做法是**将 HTTP 状态码和业务状态码分开**，由技术框架处理 HTTP Status Code，而开发者控制业务层面的状态码。
 
 ```json
 200 OK
@@ -59,7 +61,7 @@ RESTful 接口规范提倡复用 HTTP 协议的 Status Code 作为接口状态�
 
 ### 接口是否应该返回单个字符串？
 
-这属于接口风格层面的内容。建议接口统一返回 kv 形式的返回值，也就是对象或者 Map。优点在于风格统一，对前端比较友好，不用考虑返回值是单字符串还是对象两种不同的情况。
+这属于接口风格层面的内容。建议接口统一返回 kv 形式的返回值，也就是对象或者 Map。优点在于风格统一，对前端比较友好，处理响应时不用考虑返回值是单字符串还是对象两种不同的情况。
 
 ### 是否封装没有返回值的接口？
 
@@ -167,7 +169,7 @@ public Result something() {
 - 存在大量重复代码。
 
 - 构建 Result 的代码增加了 Controller 的复杂性，降低了可读性。
-- 有时需要将 Result 类型下降到 Service 层中，比如要在 Service 处理异常。这样会增加 Service 层对 Controller 层的依赖，加深了代码耦合。
+- 有时需要将 Result 类型下降到 Service 层中，比如要在 Service 处理异常。这会导致 Service 层对 Controller 层的依赖，加深了代码耦合。
 - 枚举类型的 ResultCode 不易扩展。
 
 为了解决这些问题，我们需要更深层次的封装。
@@ -181,7 +183,7 @@ public Result something() {
 
 ### 如何自动包装 Controller 的方法返回值？
 
-自动包装方法返回值，代表不再需要在 Controller 层中显式构建 `Result` 对象，通常可以利用框架提供的工具实现。例如上面 API 接口可以简化为下面的样子。
+自动包装方法返回值，代表不需要显式地在 Controller 层中构建 `Result` 对象，而是由框架将返回的对象转换为 `Result`。例如上面接口可以简化为下面的样子。
 
 ```java
 // SomethingController
@@ -194,7 +196,7 @@ public Map<String, String> wrapSomething() {
 
 要实现这个功能，可以使用 SpringMVC 提供的 `ResponseBodyAdvice` 接口。
 
-`ResponseBodyAdvice` 作用于 SpringMVC 的请求处理流程，可以修改被 `@ResponseBody` 注解标记的 Controller 方法的返回值。该接口在将返回值写入 `HttpServletResponse` 之前被调用。
+`ResponseBodyAdvice` 作用于 SpringMVC 的请求处理流程，可以修改被 `@ResponseBody` 注解标记的 Controller 方法的返回值。该接口在返回值写入 `HttpServletResponse` 之前被调用。
 
 ![spring mvc doDispatch](https://img.prochase.top/bkimg/2024/07/bff7cb08e1dacd4ddbd71ad59d79e60d.png)
 
@@ -204,14 +206,14 @@ public Map<String, String> wrapSomething() {
 
 上图第 8 步，将对象序列化并写入 `HttpServletResponse`。
 
-在 `ResponseBodyAdvice` 接口中，定义了两个方法：
+`ResponseBodyAdvice` 接口定义了两个方法：
 
 - `supports` 返回 true 才会执行 `beforeBodyWrite` 方法。
-- `beforeBodyWrite` 将来自 Controller 方法的结果作为参数传入，并将返回值将作为新的结果，随后会被写入 `HttpServletResponse` 中。
+- `beforeBodyWrite` 将 Controller 方法的返回值作为参数传入，并返回新的对象。SpringMVC 会将新的返回值将作为结果写入 `HttpServletResponse` 中。
 
-在两个方法中，都有一个 `MethodParameter` 类型的 `returnType` 参数。这是一个很有用的参数，代表 Controller 方法返回值对应的反射，在上面的例子就是 `Map<String, String>` 的反射。通过 `returnType` 可以获取方法的反射（Method），从而获取方法名、方法参数列表、方法的注解等信息，对应上面的例子就是 `wrapSomething`的参数和注解；还可以获取到方法所在类的反射，如此一来，就可以获得 `SomethingController` 类的各种信息。
+两个方法都有一个 `MethodParameter` 类型的参数 `returnType`。这是一个很有用的参数，代表 Controller 方法返回值的反射，在上面的例子中就是 `Map<String, String>` 的反射。通过 `returnType` 可以获取方法的反射（Method），进而获取方法名、方法参数列表、方法注解等信息，对应上面的例子就是 `wrapSomething`的参数和注解；还可以获取到方法所在类的反射，如此一来，就可以获得 `SomethingController` 类的各种信息。
 
-为了控制自动包装的粒度，我们使用了 `@WrappedResponse` 注解，仅自动处理用该注解标记的方法。可以通过 `returnType` 来判断方法是否被注解标记。
+为了控制自动包装的粒度，我们使用了 `@WrappedResponse` 注解。只有用该注解标记的方法才会被自动包装。通过 `returnType` 可以判断方法是否被注解标记。
 
 ```java
 @ControllerAdvice
@@ -264,9 +266,9 @@ SpringMVC 提供了默认的异常处理流程，会收集异常类型，以 JSO
 }
 ```
 
-这与我们定义的结构不一致，需要自定义异常处理流程。
+这与我们定义的结构不一致，需要进行调整。
 
-控制 SpringMVC 处理异常可以使用 `@RestControllerAdvice` 和 `ExceptionHandler` 两个注解。
+控制 SpringMVC 的异常返回结构可以使用 `@RestControllerAdvice` 和 `ExceptionHandler` 两个注解。
 
 ```java
 @RestControllerAdvice
@@ -310,12 +312,14 @@ public Result handleException(Throwable e) {
 
 异常处理过程涉及到了三个关键类和两个注解。
 
+![exception handler](https://img.prochase.top/bkimg/2024/07/adcd1ef301e34ed33bce7ab477004c89.png)
+
 其中，两个注解为：
 
 - `@ExceptionHandler` 注解标记的方法会被视作异常处理方法，与一个具体的异常类型绑定。
 - `@RestControllerAdvice` 内部用 `@ControllerAdvice` 标记，这与上一小节 `ResponseBodyAdvice` 的初始化流程一致。`RestControllerAdvice` 多了一个 `@ResponseBody` 注解，这与在 `RestController` 一致，旨在提示 SpringMVC，这个方法的返回值不走视图渲染流程，而是直接序列化为 JSON 再写入请求的 `HttpServletResponse`。
 
-对应的三个关键类为：
+三个关键类为：
 
 - **`DispatcherServlet`** 是第一个关键类。SpringMVC 在 `DispatcherServlet` 类中统一处理请求处理流程中的异常。`DispatcherServlet` 类维护了一个 `HandlerExceptionResolver` 列表，执行初始化方法时会从 Spring 容器中获取 `HandlerExceptionResolver` 类型 bean。
 
@@ -327,9 +331,6 @@ public Result handleException(Throwable e) {
 - **`ExceptionHandlerMethodResolver`** 是第三个关键类。在这个类内部，处理上一步中关联的 advice。
   1. 通过反射获取到 advice 中所有被 `@ExceptionHandler` 标记的方法，以及注解中指定的异常类型。
   2. 用一个 Map 维护 exception type → Method 的映射关系。这里的 Map 使用了 `LinkedHashMap`，用于维持异常处理的顺序。
-
-通过这三个关键类，我们得到了如下的结构：
-![exception handler](https://img.prochase.top/bkimg/2024/07/adcd1ef301e34ed33bce7ab477004c89.png)
 
 处理异常时，会按照如下顺序处理。
 
