@@ -1,5 +1,5 @@
 ---
-title: 当你要搭建一个 Redis 压试环境
+title: 当你要搭建一个 Redis 压测环境
 date: 2024-07-16 01:19:01
 tags:
 - Redis
