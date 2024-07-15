@@ -8,7 +8,7 @@
     "deploy": "hexo deploy",
     "server": "hexo server",
     "dev": "hexo clean && hexo generate && hexo server",
-    "preview": "hexo generate && hexo server"
+    "pre": "hexo generate && hexo server"
   },
   "hexo": {
     "version": "5.4.2"
