@@ -16,15 +16,15 @@ categories:
 
 集合点哈希算法的核心思想是对于每个苹果，分配一个随机的篮子序列，选择序列中的第一个篮子作为容器。
 
-![img](/Users/kuma/Documents/Writing/Computer Science/路由算法——集合点哈希.assets/rendezvous_hash.png)
+![img](https://img.prochase.top/bkimg/2024/08/4afcc910883b4808cd15abb9fad63487.png)
 
 当序列中第一个篮子变得不可用时，选择第二个篮子。这样就保证了减少节点时，只需要移动被移除节点上的键，其他节点上的键不受影响。从上图移除 S2 节点时，只有原本第一选择是 S2 的键需要迁移。因为序列的第二个篮子是随机的，原本 S2 上的键会被平均分配给剩下的节点，不会导致某一个节点的数据量激增的**数据倾斜**问题。
 
-![img](/Users/kuma/Documents/Writing/Computer Science/路由算法——集合点哈希.assets/rendezvous_hash_delete.png)
+![img](https://img.prochase.top/bkimg/2024/08/d2c9deb1d1c4f1a2947b2f6696b9a47c.png)
 
 实际实现中，不需要真正地记录每一个苹果的篮子序列，只需要保证篮子不变时，每个苹果对应的篮子序列也不会变即可。要实现这种功能，一个行之有效的办法是利用哈希函数的确定性，相同的键能得到相同的哈希值。在为苹果挑选篮子时，综合苹果的特征和篮子的特征，作为参数计算出哈希值，这样就得到了一个哈希值列表，然后从中选择哈希值最大（或最小）的篮子作为最终结果。
 
-![img](/Users/kuma/Documents/Writing/Computer Science/路由算法——集合点哈希.assets/max_weight.png)
+![img](https://img.prochase.top/bkimg/2024/08/251b43190dd7ea1483df714de9ddfd74.png)
 
 之所以综合苹果的特征和篮子的特征，是为了保证不会为所有键生成相同的序列。
 
@@ -141,7 +141,7 @@ void Route_with_different_weight() {
 
 3 个物理节点，键的数量分别为 10000、100000、1000000、5000000，计算一致性哈希算法和集合点哈希算法的变异系数。这里一致性哈希算法使用 1000 个虚拟节点，最大程度屏蔽误差。
 
-![一致性哈希 vs 集合点哈希](/Users/kuma/Documents/Writing/Computer Science/路由算法——集合点哈希.assets/一致性哈希 vs 集合点哈希.png)
+![一致性哈希 vs 集合点哈希](https://img.prochase.top/bkimg/2024/08/633de067fd89ca7cfa308edf97e8eea5.png)
 
 从图表中可以看出，集合点哈希明显比一致性哈希更均匀。
 
