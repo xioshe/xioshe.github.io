@@ -246,9 +246,9 @@ public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
 对于新项目，推荐使用 Springdoc 配合 OpenAPI 来管理 API 文档。
 
-对于老项目，如果不想引入新的依赖，可以考虑使用 Swagger 2.0 的 Springfox 来管理 API 文档。
+对于老项目，如果需要兼容 Swagger 2 的注解，可以考虑使用 Springfox。
 
-如果有扩展需求，可以考虑使用 Knife4j，但需要慎重考虑收益与成本是否匹配。
+如果有特殊扩展需求，可以考虑使用 Knife4j，但需要慎重考虑收益与成本是否匹配。
 
 ## 参考文档
 
