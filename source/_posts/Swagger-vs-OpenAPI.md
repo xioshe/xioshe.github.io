@@ -106,6 +106,22 @@ springdoc:
 
 更多配置项可以参考 [Springdoc 官方文档#5. Springdoc-openapi Properties](https://springdoc.org/#properties)。
 
+### 新老注解映射关系
+
+OpenAPI 3.0 规范与 Swagger 2.0 注解的对应关系及相关功能如下：
+
+| Swagger 2.0                      | OpenAPI 3.0                     | 功能                 |
+| -------------------------------- | ------------------------------- | -------------------- |
+| @Api                             | @Tag                            | API 分组             |
+| @ApiModel                        | @Schema                         | DTO 类               |
+| @ApiModelProperty                | @Schema                         | DTO 类的属性         |
+| @ApiOperation                    | @Operation                      | API                  |
+| @ApiParam                        | @Parameter                      | API 参数             |
+| @ApiResponse                     | @ApiResponse                    | API 响应             |
+| @ApiImplicitParam                | @Parameter                      | 隐式参数，比如请求头 |
+| @ApiImplicitParams               | @Parameters                     |                      |
+| @ApiModelProperty(hidden = true) | @Schema(accessMode = READ_ONLY) | 忽略 DTO 的某个属性  |
+
 ### 多分组配置
 
 在上面例子中，我们启用了一个默认分组，匹配所有接口。Springdoc 还支持对不同分组进行配置，不同分组的接口会显示在不同的 Swagger UI 页面上。
