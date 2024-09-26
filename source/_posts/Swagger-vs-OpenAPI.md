@@ -38,7 +38,7 @@ Swagger 专注于定义规范（OpenAPI、Swagger Core）和展示数据（Swagg
 
 - 在 Spring Boot 2.x/1.x 项目中，如果需要兼容 Swagger 2.0，只能选择 Springfox。
 
-- 其他时��，Springdoc 是更好的选择。
+- 其他情况下，Springdoc 都是更好的选择。
 
 如果不想用默认的 Swagger UI，GitHub 上有很多第三方 swagger-ui 项目。在 Chrome 浏览器商店，甚至还有一个 Swagger-UI 的扩展，扩展了更换主题的功能。
 
