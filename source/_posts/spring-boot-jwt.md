@@ -159,7 +159,31 @@ Spring Security 主要基于 Filter 来实现认证和授权。Filter 是 Servle
 
 ![image-20240926214101367](https://img.prochase.top/bkimg/2024/09/e6998ab9640fd77e1e2336a1091010de.png)
 
-DaoAuthenticationProvider 会调用 UserDetailsService 接口，根据用户名获取用户信息。当系统使用数据库保管用户信息时，需要实现 UserDetailsService 接口，从数据库中查询用户信息。
+DaoAuthenticationProvider 会调用 UserDetailsService 接口，根据用户名获取用户信息。当系统使用数据库保管用户信息时，需要实现 UserDetailsService 接口，从数据库中查询用户信息，转换为 UserDetails 对象。
+
+```java
+public interface UserDetailsService {
+    UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+}
+```
+
+`loadUserByUsername` 方法的返回类型是 UserDetails 接口，这是 Spring Security 定义的类型，包含了需要的用户信息。
+
+```java
+public interface UserDetails {
+    Collection<? extends GrantedAuthority> getAuthorities();
+    String getPassword();
+    String getUsername();
+    boolean isAccountNonExpired();
+    boolean isAccountNonLocked();
+    boolean isCredentialsNonExpired();
+    boolean isEnabled();
+}
+```
+
+UserDetails 接口的关键方法是 `getPassword` 和 `getUsername`，用于获取系统的登录凭证。`getAuthorities` 方法获取权限信息，如果不涉及到权限管理，返回空集合即可。`isAccountNonExpired`、`isAccountNonLocked`、`isCredentialsNonExpired`、`isEnabled` 方法获取用户的状态信息，默认返回 true，如果不需要更细粒度的控制，可以不用实现。
+
+Spring Security 提供了一个 UserDetails 的实现类 `org.springframework.security.core.userdetails.User` 和 GrantedAuthority 接口的实现类 `org.springframework.security.core.SimpleGrantedAuthority`，可以直接使用。
 
 ### 实现 JWT 认证
 
@@ -167,7 +191,7 @@ DaoAuthenticationProvider 会调用 UserDetailsService 接口，根据用户名�
 
 首先，需要提供 JWT Token 的生成、解析、验证功能，这部分代码与前文一致，封装在 JwtTokenService 中。
 
-其次，定义 PasswordEncoder、UserDetailsService、AuthenticationManager，可以直接使用系统的默认实现。
+其次，定义 PasswordEncoder、AuthenticationManager、UserDetailsService，前两者可以直接使用系统提供的实现类，UserDetailsService 需要自己实现。
 
 ```java
 @EnableWebSecurity() // 启用 WebSecurityConfiguration
@@ -204,6 +228,14 @@ public class SecurityConfig {
     }
 }
 ```
+
+这里使用 Lambda 表达式实现 UserDetailsService，直接返回 UserMapper 返回值的前提是返回值是 UserDetails 接口的实现类。
+
+`PasswordEncoder` 接口用于处理密码。为了保证安全性，不能直接存储明文密码，需要用**密码学哈希算法**进行单向映射。登录时对用户输入的密码进行相同操作，再进行比较。这样即使数据库泄露，黑客也无法知道用户的原始密码，也就无法用泄露的账号和密码登录系统，也无法根据用户习惯用相同密码尝试登录其他应用。
+
+使用 DaoAuthenticationProvider 的`authenticate` 方法进行身份认证时，会自动调用 PasswordEncoder 对明文密码编码后再匹配。因此，如果使用 Spring Security 提供的认证机制，不需要手动调用 PasswordEncoder，系统会自动处理。但**注册用户时，必须用 PasswordEncoder 对明文密码进行编码**。
+
+`BCryptPasswordEncoder` 是 Spring Security 提供的一种 PasswordEncoder 实现类，使用 BCrypt 哈希算法，这是安全性较高的算法，可以有效防止彩虹表攻击。
 
 接着实现 JwtTokenFilter，内部调用 JwtTokenService，实现 JWT 认证逻辑。
 
@@ -467,7 +499,9 @@ public class CustomCachingUserDetailsService implements UserDetailsService {
 }
 ```
 
-再用上述 CustomCachingUserDetailsService 替换掉原来的 UserDetailsService，就可以实现缓存。JwtTokenFilter 每次处理请求，只有当缓存中不存在时，才会调用 UserDetailsService 查询数据库。
+有一个容易出错的地方，JSON 序列化不支持 Spring Security 提供的实现类 `org.springframework.security.core.userdetails.User` 和 `org.springframework.security.core.SimpleGrantedAuthority`，需要使用自定义的 UserDetails 实现和 GrantedAuthority 实现。
+
+用上述 CustomCachingUserDetailsService 替换掉原来的 UserDetailsService，就可以实现 UserDetails 的缓存。JwtTokenFilter 每次处理请求，只有缓存无法命中时，才会调用 UserDetailsService 查询数据库。
 
 ### 禁用令牌
 
