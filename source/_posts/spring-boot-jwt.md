@@ -337,19 +337,16 @@ public class AuthController {
 ```java
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   JwtTokenFilter jwtTokenFilter,
-                                                   DelegatedAuthenticationEntryPoint entryPoint) throws Exception {
+                                                   JwtTokenFilter jwtTokenFilter) throws Exception {
         return http
-                .cors(Customizer.withDefaults()) // 配合注册 CorsFilter Bean 才会生效
+                .cors(Customizer.withDefaults()) // 启用 CORS，配合注册 CorsFilter Bean 才会生效
                 .csrf(AbstractHttpConfigurer::disable) // 禁用 CSRF
                 .sessionManagement(manager ->
-                        manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 无状态 Session
+                        manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 禁用 Session
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/api/auth/**").permitAll(); // 开放登录接口
                     auth.anyRequest().authenticated(); // 其他接口需要认证
                 })
-                .exceptionHandling(exceptionHanding ->
-                        exceptionHanding.authenticationEntryPoint(entryPoint)) // 认证失败的处理方式
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class) // 注册 JwtTokenFilter
                 .build();
     }
@@ -398,9 +395,36 @@ AuthorizationFilter (13/13)
 
 ### 错误处理
 
-上面我们提到，实际负责认证的是 AuthorizationFilter，认证失败时，会抛出 AuthenticationException 异常。这个异常无法由 Sping Boot 的 ExceptionHandler 处理，因为通用异常处理发生在 DispatcherServlet 中，这是一个 Servlet，位于上面洋葱图的最内圈，无法处理外圈 Filter 中的异常。因此，基于 ExceptionHandler 的机制，只能处理 Interceptor 和 Controller 中的异常，不能处理 Filter 中的异常。
+上文提及，真正执行认证的是 AuthorizationFilter。这个类会根据用户提供的登录凭证进行认证，当认证失败时，会抛出 AuthenticationException 异常。此外，如果在定义 `SecurityFilterChain` 时，指定了某个路径需要**鉴权**，AuthorizationFilter 也会执行鉴权操作。当用户权限不足，会抛出 AuthenticationException 异常。
 
-Spring Security 在 AuthorizationFilter 之前注册了一个 ExceptionTranslationFilter，用来捕获 AuthorizationFilter 抛出的异常。当捕获到 AuthenticationException 异常时，会调用 AuthenticationEntryPoint 接口处理。默认的 AuthenticationEntryPoint 实现是 BasicAuthenticationEntryPoint，只会返回 401 错误码，如果要返回统一的异常相应，需要自定义 AuthenticationEntryPoint。
+```java
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    return http.authorizeHttpRequests(auth -> {
+                auth.requestMatchers("/api/admin/**").hasRole("ADMIN"); // 需要管理员权限
+                auth.anyRequest().authenticated(); // 其他接口需要认证
+            })
+            // 其他配置
+            // ...
+            .build();
+}
+```
+
+这两个异常无法由 Sping Boot 的 ExceptionHandler 处理。因为通用的异常处理机制，也就是基于 ExceptionHandler 的异常处理逻辑，生效于 `DispatcherServlet`，这是一个 Servlet，位于上面洋葱图的最里面，无法处理外层 Filter 中的异常，只能处理 Interceptor 和 Controller 中的异常。
+
+为了处理 AuthorizationFilter 抛出的两种异常，Spring Security 在 AuthorizationFilter 之前注册了一个 ExceptionTranslationFilter，专门捕获这两种异常。
+
+- 对于 AuthenticationException，会调用 `AuthenticationEntryPoint` 接口处理。默认的 AuthenticationEntryPoint 实现是 BasicAuthenticationEntryPoint，直接返回 401 错误码。
+- 对于 AccessDeniedException，会调用 `AccessDeniedHandler` 接口处理。默认的 AccessDeniedHandler 实现是 AccessDeniedHandlerImpl，直接返回 403 错误码。
+
+这两种默认处理实现，都存在一个明显的问题，内部使用了 HttpServletResponse::sendError 返回错误信息。当 sendError() 被调用时，Servlet 容器（如 Tomcat）会捕获这个错误状态，然后会查找是否有为该错误状态配置的错误页面。由于 Spring Boot 默认为所有错误配置了 /error 路径作为错误页面，因此，容器会将请求转发到 /error 路径。这个转发操作会再经历一遍 Filter 链，包括 AuthorizationFilter，如果没有将 /error 配置为公开路径，会导致 AuthenticationException（只会抛出一次）。这就导致了错误信息会被覆盖掉，比如鉴权失败 403 错误码会被认证失败 401 错误码覆盖。
+
+有两种解决办法：
+
+- 不启用 Spring Boot 的 /error 错误页面路径，需要排除掉 `ErrorMvcAutoConfiguration` 配置类。
+- 自定义 AuthenticationEntryPoint 和 AccessDeniedHandler，在抛出异常时，不调用 sendError()，而是将错误信息写入响应体。
+
+下面是利用系统提供的 `HandlerExceptionResolver` 组件来处理异常，这还带来另外的好处，可以集中异常处理，便于统一管理。
 
 ```java
 @Component
@@ -424,9 +448,32 @@ public class DelegatedAuthenticationEntryPoint implements AuthenticationEntryPoi
         exceptionResolver.resolveException(request, response, null, authException);
     }
 }
+
+@Slf4j
+@Component
+public class DelegatedAccessDeniedHandler implements AccessDeniedHandler {
+
+    @Resource(name = "handlerExceptionResolver")
+    private HandlerExceptionResolver exceptionResolver;
+
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException, ServletException {
+        log.debug("handle AccessDeniedException with HandlerExceptionResolver", accessDeniedException);
+        exceptionResolver.resolveException(request, response, null, accessDeniedException);
+    }
+}
 ```
 
-上述代码定义了一个 AuthenticationEntryPoint，不直接处理异常，而是委托给 HandlerExceptionResolver 处理。这样做的好处是可以直接复用 ExceptionHandler 中的异常处理机制，有利于统一代码。
+还需要在 SecurityFilterChain 中配置 DelegatedAuthenticationEntryPoint 和 DelegatedAccessDeniedHandler：
+
+```java
+http.exceptionHandling(exceptionHanding ->
+            exceptionHanding.authenticationEntryPoint(entryPoint)
+                    .accessDeniedHandler(accessDeniedHandler))
+    //... 其他配置
+    .build();
+```
 
 对应的 ExceptionHandler 处理：
 
@@ -445,6 +492,16 @@ public class GlobalExceptionHandler {
                 ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
         errorDetail.setProperty("description", "Full authentication is required to access this resource");
         return errorDetail;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDeniedException(AccessDeniedException exception,
+                                                     HttpServletRequest request) {
+        log.debug("occur AccessDeniedException: ", exception);
+        log.warn("AccessDeniedException in path {} : {}", request.getRequestURI(), exception.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
+        problemDetail.setProperty("description", "You are not authorized to access this resource");
+        return problemDetail;
     }
 }
 ```
@@ -648,6 +705,31 @@ private Claims extractClaims(String token) {
     throw exception;
 }
 ```
+
+上述实现有一个小问题，当应用重启后，所有旧的 Token 会失效。在开发环境中，因为频繁重启，总是要重新获取 Token，十分不方便。一个比较好的实践是结合配置文件提供的加密密钥。启动时，如果配置文件中提供了加密密钥，则使用配置文件中的密钥，否则，生成一个随机密钥。
+
+修改 RotatingSecretKeyManager，增加相关逻辑：
+
+```java
+@Value("${security.jwt.key.secret}")
+private String secret;
+
+@Override
+public void afterPropertiesSet() throws Exception {
+    // 支持配置文件中的密钥，可以避免开发时重启后 Token 失效
+    if (StringUtils.hasText(secret)) {
+        if (secret.getBytes(StandardCharsets.UTF_8).length < 32) {
+            log.warn("The secret key is too short, it should be at least 32 characters long.");
+            throw new IllegalArgumentException("The secret key is too short, it should be at least 32 characters long.");
+        }
+        keys.offerFirst(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)));
+    } else {
+        rotateKeys();
+    }
+}
+```
+
+开发环境中，可以使用配置文件提供的密钥来避免 Token 失效。生产环境，则不配置加密密钥，使用随机生成的密钥，保证最大安全性。
 
 ## 总结
 
