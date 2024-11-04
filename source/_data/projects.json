@@ -1,7 +1,7 @@
 [
    {
-      "name": "Live Better",
-      "url": "https://www.free404.com/",
-      "desc": "Try my best"
+      "name": "LessURL",
+      "url": "https://github.com/xioshe/less-url-front",
+      "desc": "短链服务，使用 Vue 3、TypeScript 和 Naive UI 构建，现代化、用户友好，具备链接管理和分析功能。"
    }
 ]
